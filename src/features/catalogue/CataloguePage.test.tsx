@@ -72,7 +72,8 @@ describe('CataloguePage', () => {
     expect(await screen.findByText('Space Explorer')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'Space Explorer' })).toHaveAttribute('href', '/catalogue/1')
     expect(screen.getByText('Set 12345')).toBeInTheDocument()
-    expect(screen.getByText('Price: 39.99')).toBeInTheDocument()
+    expect(screen.getByText('Original price: 49.99')).toBeInTheDocument()
+    expect(screen.getByText('Sale price: 39.99')).toBeInTheDocument()
   })
 
   it('renders returned product data and the original price', async () => {
@@ -162,7 +163,8 @@ describe('CataloguePage', () => {
     initialRequest.resolve(response([productWithoutSale]))
 
     await new Promise((resolve) => setTimeout(resolve, 0))
-    expect(screen.getByText('Price: 39.99')).toBeInTheDocument()
+    expect(screen.getByText('Original price: 49.99')).toBeInTheDocument()
+    expect(screen.getByText('Sale price: 39.99')).toBeInTheDocument()
   })
 
   it('resets pagination to page 1 when applying a filter from page 2', async () => {
@@ -237,6 +239,22 @@ describe('CataloguePage', () => {
     }))
     await screen.findByText('Page 2 of 2')
     expect(screen.getByRole('button', { name: 'Next' })).toBeDisabled()
+  })
+
+  it('scrolls the results section into view after successful pagination', async () => {
+    const scrollIntoView = vi.fn()
+    Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', { configurable: true, value: scrollIntoView })
+    getProductsMock
+      .mockResolvedValueOnce(response([product], 1, 2))
+      .mockResolvedValueOnce(response([product], 2, 2))
+    render(<MemoryRouter><CataloguePage /></MemoryRouter>)
+    await screen.findByText('Page 1 of 2')
+
+    fireEvent.click(screen.getByRole('button', { name: 'Next' }))
+    await screen.findByText('Page 2 of 2')
+
+    expect(scrollIntoView).toHaveBeenCalledWith({ behavior: 'smooth', block: 'start' })
+    delete (HTMLElement.prototype as { scrollIntoView?: unknown }).scrollIntoView
   })
 
   it('requests the previous page and does not cross the backend boundaries', async () => {

@@ -35,6 +35,15 @@ function deferred<T>() {
 describe('ProductDetailPage', () => {
   beforeEach(() => getProductByIdMock.mockReset())
 
+  it('shows loading while a valid product request is pending', () => {
+    const request = deferred<ProductListing>()
+    getProductByIdMock.mockReturnValue(request.promise)
+    renderAt('/catalogue/42')
+
+    expect(screen.getByText('Loading product...')).toBeInTheDocument()
+    request.resolve(product)
+  })
+
   it('requests the numeric route id and renders product data', async () => {
     getProductByIdMock.mockResolvedValue(product)
     renderAt('/catalogue/42')
@@ -43,12 +52,18 @@ describe('ProductDetailPage', () => {
     expect(getProductByIdMock).toHaveBeenCalledWith(42)
     expect(screen.getByText('Set 12345')).toBeInTheDocument()
     expect(screen.getByText('Theme: Space')).toBeInTheDocument()
-    expect(screen.getByText('Description: Explore space.')).toBeInTheDocument()
-    expect(screen.getByText('Age recommendation: 8+')).toBeInTheDocument()
-    expect(screen.getByText('Piece count: 500')).toBeInTheDocument()
-    expect(screen.getByText('Condition: NEW')).toBeInTheDocument()
-    expect(screen.getByText('Current stock: 3')).toBeInTheDocument()
-    expect(screen.getByText('Original price: 49.99; Sale price: 39.99')).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Description' })).toBeInTheDocument()
+    expect(screen.getByText('Explore space.')).toBeInTheDocument()
+    expect(screen.getByText('Age recommendation')).toBeInTheDocument()
+    expect(screen.getByText('8+')).toBeInTheDocument()
+    expect(screen.getByText('Piece count')).toBeInTheDocument()
+    expect(screen.getByText('500')).toBeInTheDocument()
+    expect(screen.getByText('Condition')).toBeInTheDocument()
+    expect(screen.getByText('NEW')).toBeInTheDocument()
+    expect(screen.getByText('Current stock')).toBeInTheDocument()
+    expect(screen.getByText('3')).toBeInTheDocument()
+    expect(screen.getByText('Original price: 49.99')).toBeInTheDocument()
+    expect(screen.getByText('Sale price: 39.99')).toBeInTheDocument()
   })
 
   it('falls back to the original price and safe description', async () => {
@@ -56,8 +71,19 @@ describe('ProductDetailPage', () => {
     renderAt('/catalogue/42')
 
     expect(await screen.findByText('Price: 49.99')).toBeInTheDocument()
-    expect(screen.getByText('Description: No description available.')).toBeInTheDocument()
+    expect(screen.getByText('Description')).toBeInTheDocument()
+    expect(screen.getByText('No description available.')).toBeInTheDocument()
     expect(screen.getByRole('img', { name: 'No product image available' })).toHaveAttribute('src', '/images/no-product-image.svg')
+  })
+
+  it('provides a back-to-catalogue link and semantic product metadata', async () => {
+    getProductByIdMock.mockResolvedValue(product)
+    renderAt('/catalogue/42')
+
+    await screen.findByRole('heading', { name: 'Space Explorer' })
+    expect(screen.getByRole('link', { name: 'Back to catalogue' })).toHaveAttribute('href', '/catalogue')
+    expect(screen.getByText('Age recommendation').tagName).toBe('DT')
+    expect(screen.getByText('Current stock').tagName).toBe('DT')
   })
 
   it('renders listing images in backend order with alt text fallbacks', async () => {

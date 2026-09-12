@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { SubmitEvent } from 'react'
+import { Link } from 'react-router-dom'
 import { getProducts } from './api.ts'
 import type { ProductListing, ProductsResponse } from './types.ts'
 import type { GetProductsParams } from './types.ts'
@@ -101,7 +102,18 @@ export function CataloguePage() {
       {state.status === 'error' && <p>Unable to load catalogue.</p>}
       {state.status === 'success' && state.data.items.length === 0 && <p>Catalogue is empty.</p>}
       {state.status === 'success' && state.data.items.length > 0 && <ul>
-        {state.data.items.map((listing) => <li key={listing.id}><h2>{listing.legoProduct.title}</h2><p>Set {listing.legoProduct.setNumber}</p><p>Price: {getDisplayedPrice(listing)}</p></li>)}
+        {state.data.items.map((listing) => {
+          const thumbnail = listing.listingImages[0]
+          return <li key={listing.id}>
+            <Link to={`/catalogue/${listing.id}`}>
+              {thumbnail
+                ? <img src={thumbnail.url} alt={thumbnail.altText ?? listing.legoProduct.title} />
+                : <img src="/images/no-product-image.svg" alt="No product image available" />}
+            </Link>
+            <h2><Link to={`/catalogue/${listing.id}`}>{listing.legoProduct.title}</Link></h2>
+            <p>Set {listing.legoProduct.setNumber}</p><p>Price: {getDisplayedPrice(listing)}</p>
+          </li>
+        })}
       </ul>}
       {state.status === 'success' && <nav aria-label="Catalogue pagination">
         <button type="button" onClick={() => handlePageChange(-1)} disabled={state.data.pagination.page <= 1}>Previous</button>

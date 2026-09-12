@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 160" role="img" aria-labelledby="title">
+  <title>Product image unavailable</title>
+  <rect width="240" height="160" fill="#eeeeee" />
+  <path d="M55 120l35-40 25 25 25-30 45 45H55z" fill="#aaaaaa" />
+  <circle cx="165" cy="55" r="14" fill="#aaaaaa" />
+</svg>

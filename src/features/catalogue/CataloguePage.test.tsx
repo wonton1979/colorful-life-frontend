@@ -1,4 +1,5 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { MemoryRouter } from 'react-router-dom'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { CataloguePage } from './CataloguePage.tsx'
 import { getProducts } from './api.ts'
@@ -57,7 +58,7 @@ describe('CataloguePage', () => {
   it('shows loading while the request is pending and calls getProducts on mount', async () => {
     getProductsMock.mockReturnValue(new Promise(() => undefined))
 
-    render(<CataloguePage />)
+    render(<MemoryRouter><CataloguePage /></MemoryRouter>)
 
     expect(screen.getByText('Loading catalogue...')).toBeInTheDocument()
     await waitFor(() => expect(getProductsMock).toHaveBeenCalledWith({ page: 1, pageSize: 20 }))
@@ -66,9 +67,10 @@ describe('CataloguePage', () => {
   it('renders returned product data and the sale price', async () => {
     getProductsMock.mockResolvedValue(response([product]))
 
-    render(<CataloguePage />)
+    render(<MemoryRouter><CataloguePage /></MemoryRouter>)
 
     expect(await screen.findByText('Space Explorer')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Space Explorer' })).toHaveAttribute('href', '/catalogue/1')
     expect(screen.getByText('Set 12345')).toBeInTheDocument()
     expect(screen.getByText('Price: 39.99')).toBeInTheDocument()
   })
@@ -77,17 +79,44 @@ describe('CataloguePage', () => {
 
     getProductsMock.mockResolvedValue(response([productWithoutSale]))
 
-    render(<CataloguePage />)
+    render(<MemoryRouter><CataloguePage /></MemoryRouter>)
 
     expect(await screen.findByText('Space Explorer')).toBeInTheDocument()
     expect(screen.getByText('Set 12345')).toBeInTheDocument()
     expect(screen.getByText('Price: 49.99')).toBeInTheDocument()
+    expect(screen.getByRole('img', { name: 'No product image available' })).toHaveAttribute('src', '/images/no-product-image.svg')
+  })
+
+  it('renders the first listing image as a linked catalogue thumbnail', async () => {
+    getProductsMock.mockResolvedValue(response([{
+      ...product,
+      listingImages: [
+        { id: 1, listingId: 1, url: '/first.jpg', publicId: 'first', altText: 'First image', sortOrder: 2, createdAt: '' },
+        { id: 2, listingId: 1, url: '/second.jpg', publicId: 'second', altText: 'Second image', sortOrder: 1, createdAt: '' },
+      ],
+    }]))
+    render(<MemoryRouter><CataloguePage /></MemoryRouter>)
+
+    const thumbnail = await screen.findByRole('img', { name: 'First image' })
+    expect(thumbnail).toHaveAttribute('src', '/first.jpg')
+    expect(screen.queryByRole('img', { name: 'Second image' })).not.toBeInTheDocument()
+    expect(thumbnail.closest('a')).toHaveAttribute('href', '/catalogue/1')
+  })
+
+  it('uses the product title when the first thumbnail has no alt text', async () => {
+    getProductsMock.mockResolvedValue(response([{
+      ...product,
+      listingImages: [{ id: 1, listingId: 1, url: '/first.jpg', publicId: 'first', altText: null, sortOrder: 1, createdAt: '' }],
+    }]))
+    render(<MemoryRouter><CataloguePage /></MemoryRouter>)
+
+    expect(await screen.findByRole('img', { name: 'Space Explorer' })).toHaveAttribute('src', '/first.jpg')
   })
 
   it('renders the empty state when no products are returned', async () => {
     getProductsMock.mockResolvedValue(response([]))
 
-    render(<CataloguePage />)
+    render(<MemoryRouter><CataloguePage /></MemoryRouter>)
 
     expect(await screen.findByText('Catalogue is empty.')).toBeInTheDocument()
   })
@@ -95,14 +124,14 @@ describe('CataloguePage', () => {
   it('renders the error state when loading fails', async () => {
     getProductsMock.mockRejectedValue(new Error('Request failed'))
 
-    render(<CataloguePage />)
+    render(<MemoryRouter><CataloguePage /></MemoryRouter>)
 
     expect(await screen.findByText('Unable to load catalogue.')).toBeInTheDocument()
   })
 
   it('submits trimmed filters, converts prices, and omits blank values', async () => {
     getProductsMock.mockResolvedValue(response([]))
-    render(<CataloguePage />)
+    render(<MemoryRouter><CataloguePage /></MemoryRouter>)
     await waitFor(() => expect(getProductsMock).toHaveBeenCalledOnce())
 
     fireEvent.change(screen.getByLabelText('Search'), { target: { value: '  space  ' } })
@@ -123,7 +152,7 @@ describe('CataloguePage', () => {
       .mockReturnValueOnce(initialRequest.promise)
       .mockReturnValueOnce(newerRequest.promise)
 
-    render(<CataloguePage />)
+    render(<MemoryRouter><CataloguePage /></MemoryRouter>)
 
     fireEvent.change(screen.getByLabelText('Search'), { target: { value: 'new' } })
     fireEvent.click(screen.getByRole('button', { name: 'Apply' }))
@@ -140,7 +169,7 @@ describe('CataloguePage', () => {
     getProductsMock
       .mockResolvedValueOnce(response([product], 2, 2))
       .mockResolvedValueOnce(response([product], 1, 2))
-    render(<CataloguePage />)
+    render(<MemoryRouter><CataloguePage /></MemoryRouter>)
     await screen.findByText('Page 2 of 2')
 
     fireEvent.change(screen.getByLabelText('Search'), { target: { value: 'space' } })
@@ -157,7 +186,7 @@ describe('CataloguePage', () => {
     ['20', '10', 'Minimum price cannot be greater than maximum price.'],
   ])('rejects invalid prices', async (minPrice, maxPrice, message) => {
     getProductsMock.mockResolvedValue(response([]))
-    render(<CataloguePage />)
+    render(<MemoryRouter><CataloguePage /></MemoryRouter>)
     await waitFor(() => expect(getProductsMock).toHaveBeenCalledOnce())
     getProductsMock.mockClear()
 
@@ -171,7 +200,7 @@ describe('CataloguePage', () => {
 
   it('disables Previous on the first page and Next on the final page', async () => {
     getProductsMock.mockResolvedValue(response([product], 1, 1))
-    render(<CataloguePage />)
+    render(<MemoryRouter><CataloguePage /></MemoryRouter>)
 
     await screen.findByText('Page 1 of 1')
 
@@ -189,7 +218,7 @@ describe('CataloguePage', () => {
       .mockResolvedValueOnce(response([product], 1, 2))
       .mockResolvedValueOnce(response([product], 1, 2))
       .mockResolvedValueOnce(response([product], 2, 2))
-    render(<CataloguePage />)
+    render(<MemoryRouter><CataloguePage /></MemoryRouter>)
     await waitFor(() => expect(getProductsMock).toHaveBeenCalledOnce())
 
     fireEvent.change(screen.getByLabelText('Search'), { target: { value: ' space ' } })
@@ -214,7 +243,7 @@ describe('CataloguePage', () => {
     getProductsMock
       .mockResolvedValueOnce(response([product], 2, 2))
       .mockResolvedValueOnce(response([product], 1, 2))
-    render(<CataloguePage />)
+    render(<MemoryRouter><CataloguePage /></MemoryRouter>)
     await screen.findByText('Page 2 of 2')
 
     fireEvent.click(screen.getByRole('button', { name: 'Previous' }))

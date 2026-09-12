@@ -1,8 +1,8 @@
 import type { AxiosResponse } from 'axios'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { apiClient } from '../../lib/api/client.ts'
-import { getProducts } from './api.ts'
-import type { ProductsResponse } from './types.ts'
+import { getProductById, getProducts } from './api.ts'
+import type { ProductListing, ProductsResponse } from './types.ts'
 
 vi.mock('../../lib/api/client.ts', () => ({
   apiClient: {
@@ -51,5 +51,25 @@ describe('getProducts', () => {
 
   it('returns the response data', async () => {
     await expect(getProducts()).resolves.toBe(productsResponse)
+  })
+})
+
+describe('getProductById', () => {
+  beforeEach(() => {
+    getMock.mockReset()
+    getMock.mockResolvedValue({ data: {} } as AxiosResponse<ProductListing>)
+  })
+
+  it('requests a product listing by id', async () => {
+    await getProductById(42)
+
+    expect(getMock).toHaveBeenCalledWith('/products/42')
+  })
+
+  it('returns the detail response data', async () => {
+    const product = { id: 42 } as ProductListing
+    getMock.mockResolvedValue({ data: product } as AxiosResponse<ProductListing>)
+
+    await expect(getProductById(42)).resolves.toBe(product)
   })
 })

@@ -28,7 +28,7 @@ export function VerifyEmailPage() {
   async function handleResend() {
     setResendState('pending')
     try { await resendVerification(); setResendState('success') } catch { setResendState('error') }
-  }/
+  }
 
   const hasError = state === 'invalid' || state === 'error'
   return <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6"><h1 className="text-3xl font-semibold">Email verification</h1><p className={hasError ? 'mt-4 text-red-700' : 'mt-4'} role={hasError ? 'alert' : undefined}>{message}</p>{state === 'missing' && authState.status === 'authenticated-unverified' && <div className="mt-6 space-y-3"><p>Check your email to verify your account.</p><button className="cursor-pointer rounded bg-slate-800 px-4 py-2 text-white disabled:cursor-not-allowed disabled:opacity-50" type="button" disabled={resendState === 'pending'} onClick={handleResend}>{resendState === 'pending' ? 'Sending...' : 'Resend verification email'}</button>{resendState === 'success' && <p role="status">Verification email sent.</p>}{resendState === 'error' && <p className="mt-2 text-sm text-red-700" role="alert">Unable to resend verification email.</p>}</div>}</div>

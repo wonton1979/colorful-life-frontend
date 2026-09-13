@@ -2,10 +2,11 @@ import { fireEvent, render, screen, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it } from 'vitest'
 import { AuthProvider } from '../../features/auth/AuthContext.tsx'
+import { CartProvider } from '../../features/cart/CartContext.tsx'
 import { Header } from './Header.tsx'
 
 function renderHeader() {
-  return render(<AuthProvider><MemoryRouter><Header /></MemoryRouter></AuthProvider>)
+  return render(<AuthProvider><CartProvider><MemoryRouter><Header /></MemoryRouter></CartProvider></AuthProvider>)
 }
 
 describe('Header', () => {

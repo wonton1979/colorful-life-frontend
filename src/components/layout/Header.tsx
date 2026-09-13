@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../../features/auth/useAuth.ts'
+import { useCart } from '../../features/cart/useCart.ts'
 
 function MenuIcon() {
   return <svg aria-hidden="true" className="h-6 w-6 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
@@ -26,6 +27,7 @@ export function Header() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [accountMenuOpen, setAccountMenuOpen] = useState(false)
   const { state: authState, logout } = useAuth()
+  const { totalQuantity } = useCart()
 
   useEffect(() => {
     if (!accountMenuOpen) return
@@ -70,7 +72,7 @@ export function Header() {
               </div>}
             </div>
             : <Link className="cursor-pointer rounded-sm p-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-700" to="/login" aria-label="Account"><UserIcon /></Link>}
-          <button className="cursor-pointer rounded-sm p-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-700" type="button" aria-label="Cart"><CartIcon /></button>
+          <button className="relative cursor-pointer rounded-sm p-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-700" type="button" aria-label={totalQuantity > 0 ? `Cart, ${totalQuantity} items` : 'Cart'}><CartIcon />{totalQuantity > 0 && <span className="absolute right-0 top-0 min-w-4 rounded-full bg-slate-700 px-1 text-center text-[10px] leading-4 text-white" aria-hidden="true">{totalQuantity}</span>}</button>
         </div>
         <label className="relative col-span-3 row-start-2 flex items-center lg:hidden">
           <input className="w-full rounded-full border border-slate-300 bg-white py-2 pl-3 pr-10 text-sm outline-none placeholder:text-slate-500 focus:border-slate-700 focus:ring-2 focus:ring-slate-200" type="search" placeholder="Search sets, themes..." readOnly aria-label="Search sets and themes" />

@@ -98,7 +98,7 @@ export function CataloguePage() {
         <label className="flex flex-col gap-1 text-sm font-medium">Theme <input className="rounded-md border border-slate-300 px-3 py-2 font-normal focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-700" value={filters.theme} onChange={(event) => setFilters({ ...filters, theme: event.target.value })} /></label>
         <label className="flex flex-col gap-1 text-sm font-medium">Minimum price <input className="rounded-md border border-slate-300 px-3 py-2 font-normal focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-700" value={filters.minPrice} onChange={(event) => setFilters({ ...filters, minPrice: event.target.value })} /></label>
         <label className="flex flex-col gap-1 text-sm font-medium">Maximum price <input className="rounded-md border border-slate-300 px-3 py-2 font-normal focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-700" value={filters.maxPrice} onChange={(event) => setFilters({ ...filters, maxPrice: event.target.value })} /></label>
-        <button className="rounded-md border border-slate-700 bg-slate-700 px-4 py-2 font-medium text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-700" type="submit">Apply</button>
+        <button className="cursor-pointer rounded-md border border-slate-700 bg-slate-700 px-4 py-2 font-medium text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-700" type="submit">Apply</button>
       </form>
       {validationMessage && <p role="alert">{validationMessage}</p>}
       <section ref={resultsRef} aria-label="Catalogue results" className="space-y-6">
@@ -109,9 +109,9 @@ export function CataloguePage() {
           {state.data.items.map((listing) => <ProductCard key={listing.id} listing={listing} />)}
         </ul>}
         {state.status === 'success' && <nav className="flex items-center justify-center gap-4" aria-label="Catalogue pagination">
-          <button className="rounded-md border border-slate-300 px-3 py-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-700 disabled:cursor-not-allowed disabled:opacity-50" type="button" onClick={() => handlePageChange(-1)} disabled={state.data.pagination.page <= 1}>Previous</button>
+          <button className="cursor-pointer rounded-md border border-slate-300 px-3 py-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-700 disabled:cursor-not-allowed disabled:opacity-50" type="button" onClick={() => handlePageChange(-1)} disabled={state.data.pagination.page <= 1}>Previous</button>
           <span aria-live="polite">Page {state.data.pagination.page} of {state.data.pagination.totalPages}</span>
-          <button className="rounded-md border border-slate-300 px-3 py-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-700 disabled:cursor-not-allowed disabled:opacity-50" type="button" onClick={() => handlePageChange(1)} disabled={state.data.pagination.totalPages === 0 || state.data.pagination.page >= state.data.pagination.totalPages}>Next</button>
+          <button className="cursor-pointer rounded-md border border-slate-300 px-3 py-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-700 disabled:cursor-not-allowed disabled:opacity-50" type="button" onClick={() => handlePageChange(1)} disabled={state.data.pagination.totalPages === 0 || state.data.pagination.page >= state.data.pagination.totalPages}>Next</button>
         </nav>}
       </section>
     </div>

@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { getProductById } from './api.ts'
 import type { ProductListing } from './types.ts'
+import { useAuth } from '../auth/useAuth.ts'
+import { useCart } from '../cart/useCart.ts'
 
 type ProductDetailState =
   | { status: 'loading' }
@@ -19,6 +21,9 @@ function getProductId(value: string | undefined) {
 export function ProductDetailPage() {
   const { id: routeId } = useParams()
   const id = getProductId(routeId)
+  const { state: authState } = useAuth()
+  const { addItem } = useCart()
+  const [addState, setAddState] = useState<'idle' | 'pending' | 'success' | 'conflict' | 'error' | 'login'>('idle')
   const [state, setState] = useState<ProductDetailState>(() => (
     id === undefined ? { status: 'not-found' } : { status: 'loading' }
   ))
@@ -49,6 +54,12 @@ export function ProductDetailPage() {
 
   const { data } = state
   const { legoProduct } = data
+  const canAdd = data.currentStock > 0
+  const handleAdd = () => {
+    if (authState.status !== 'authenticated' && authState.status !== 'authenticated-unverified') { setAddState('login'); return }
+    setAddState('pending')
+    void addItem(data.id, 1).then(() => setAddState('success')).catch((error: unknown) => setAddState(axios.isAxiosError(error) && error.response?.status === 409 ? 'conflict' : 'error'))
+  }
   return (
     <div className={`${pageClassName} `}>
       <Link className="inline-block cursor-pointer rounded-sm text-sm font-medium underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-700" to="/catalogue">Back to catalogue</Link>
@@ -79,6 +90,7 @@ export function ProductDetailPage() {
               ? <><p className="text-sm text-slate-500 line-through">Original price: {data.originalPrice}</p><p className="text-xl font-semibold">Sale price: {data.salePrice}</p></>
               : <p className="text-xl font-semibold">Price: {data.originalPrice}</p>}
           </section>
+          {canAdd && <div className="space-y-2"><button className="cursor-pointer rounded bg-slate-800 px-4 py-2 text-white disabled:cursor-not-allowed disabled:opacity-50" type="button" disabled={addState === 'pending'} onClick={handleAdd}>{addState === 'pending' ? 'Adding...' : 'Add to Cart'}</button>{addState === 'success' && <p className="text-green-700" role="status">Added to cart.</p>}{addState === 'conflict' && <p className="text-red-700" role="alert">You already have the maximum available quantity in your cart.</p>}{addState === 'error' && <p className="text-red-700" role="alert">Unable to add this item to your cart.</p>}{addState === 'login' && <p role="alert">Please <Link className="cursor-pointer underline" to="/login">sign in</Link> to add items to your cart.</p>}</div>}
         </section>
       </article>
     </div>

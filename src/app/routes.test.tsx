@@ -3,9 +3,10 @@ import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
 import { AppRoutes } from './routes.tsx'
 import { AuthProvider } from '../features/auth/AuthContext.tsx'
+import { CartProvider } from '../features/cart/CartContext.tsx'
 
 function renderRoutes(initialEntries: string[]) {
-  return render(<AuthProvider><MemoryRouter initialEntries={initialEntries}><AppRoutes /></MemoryRouter></AuthProvider>)
+  return render(<AuthProvider><CartProvider><MemoryRouter initialEntries={initialEntries}><AppRoutes /></MemoryRouter></CartProvider></AuthProvider>)
 }
 
 vi.mock('../features/catalogue/api.ts', () => ({

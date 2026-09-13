@@ -5,6 +5,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { getProductById } from './api.ts'
 import { ProductDetailPage } from './ProductDetailPage.tsx'
 import type { ProductListing } from './types.ts'
+import { AuthProvider } from '../auth/AuthContext.tsx'
+import { CartProvider } from '../cart/CartContext.tsx'
 
 vi.mock('./api.ts', () => ({ getProductById: vi.fn() }))
 const getProductByIdMock = vi.mocked(getProductById)
@@ -18,7 +20,7 @@ const product: ProductListing = {
 }
 
 function renderAt(path: string) {
-  return render(<MemoryRouter initialEntries={[path]}><Routes><Route path="/catalogue/:id" element={<ProductDetailPage />} /></Routes></MemoryRouter>)
+  return render(<AuthProvider><CartProvider><MemoryRouter initialEntries={[path]}><Routes><Route path="/catalogue/:id" element={<ProductDetailPage />} /></Routes></MemoryRouter></CartProvider></AuthProvider>)
 }
 
 function ChangeRoute({ to }: { to: string }) {
@@ -113,11 +115,11 @@ describe('ProductDetailPage', () => {
   it('shows not found and clears the previous product when the route becomes invalid', async () => {
     getProductByIdMock.mockResolvedValue(product)
     render(
-      <MemoryRouter initialEntries={['/catalogue/42']}>
+      <AuthProvider><CartProvider><MemoryRouter initialEntries={['/catalogue/42']}>
         <Routes>
           <Route path="/catalogue/:id" element={<><ProductDetailPage /><ChangeRoute to="/catalogue/abc" /></>} />
         </Routes>
-      </MemoryRouter>,
+      </MemoryRouter></CartProvider></AuthProvider>,
     )
 
     expect(await screen.findByRole('heading', { name: 'Space Explorer' })).toBeInTheDocument()
@@ -153,12 +155,12 @@ describe('ProductDetailPage', () => {
     const requestB = deferred<ProductListing>()
     getProductByIdMock.mockReturnValueOnce(requestA.promise).mockReturnValueOnce(requestB.promise)
     render(
-        <MemoryRouter initialEntries={['/catalogue/1']}>
+        <AuthProvider><CartProvider><MemoryRouter initialEntries={['/catalogue/1']}>
           <Routes>
             <Route path="/catalogue/:id" element={<><ProductDetailPage />
             <ChangeRoute to="/catalogue/2" /></>} />
           </Routes>
-        </MemoryRouter>)
+        </MemoryRouter></CartProvider></AuthProvider>)
 
     fireEvent.click(screen.getByRole('button', { name: 'Change route' }))
 

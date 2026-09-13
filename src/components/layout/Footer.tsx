@@ -15,7 +15,7 @@ function MobileSection({ id, title, children }: { id: string; title: string; chi
   return (
     <section className="border-t border-amber-200">
       <h2 id={`${id}-heading`}>
-        <button className="flex w-full items-center justify-between py-4 text-left text-sm font-semibold uppercase tracking-wide focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-700" type="button" aria-expanded={open} aria-controls={id} onClick={() => setOpen((current) => !current)}>
+        <button className="flex w-full cursor-pointer items-center justify-between py-4 text-left text-sm font-semibold uppercase tracking-wide focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-700" type="button" aria-expanded={open} aria-controls={id} onClick={() => setOpen((current) => !current)}>
           {title}
           <span aria-hidden="true" className="text-lg font-normal">{open ? '−' : '+'}</span>
         </button>
@@ -36,7 +36,7 @@ export function Footer() {
         <nav aria-label="Footer shop navigation">
           <h2 className="text-sm font-semibold uppercase tracking-wide">Shop</h2>
           <ul className="mt-4 space-y-1">
-            <li><Link className="block rounded-sm py-1 text-sm text-slate-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-700" to="/catalogue">All Sets</Link></li>
+            <li><Link className="block cursor-pointer rounded-sm py-1 text-sm text-slate-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-700" to="/catalogue">All Sets</Link></li>
             {shopItems.map((item) => <li key={item}><PresentationItem>{item}</PresentationItem></li>)}
           </ul>
         </nav>
@@ -61,7 +61,7 @@ export function Footer() {
         <div>
           <MobileSection id="mobile-footer-shop" title="Shop">
             <ul className="space-y-1">
-              <li><Link className="block rounded-sm py-1 text-sm text-slate-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-700" to="/catalogue">All Sets</Link></li>
+              <li><Link className="block cursor-pointer rounded-sm py-1 text-sm text-slate-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-700" to="/catalogue">All Sets</Link></li>
               {shopItems.map((item) => <li key={item}><PresentationItem>{item}</PresentationItem></li>)}
             </ul>
           </MobileSection>

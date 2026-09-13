@@ -51,7 +51,7 @@ export function ProductDetailPage() {
   const { legoProduct } = data
   return (
     <div className={`${pageClassName} `}>
-      <Link className="inline-block rounded-sm text-sm font-medium underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-700" to="/catalogue">Back to catalogue</Link>
+      <Link className="inline-block cursor-pointer rounded-sm text-sm font-medium underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-700" to="/catalogue">Back to catalogue</Link>
       <article className="grid gap-8 lg:grid-cols-2">
         <section className="grid gap-4 self-start sm:grid-cols-2" aria-label="Product images">
           {data.listingImages.length > 0

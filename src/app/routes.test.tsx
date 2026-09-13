@@ -2,6 +2,11 @@ import { render, screen, within } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
 import { AppRoutes } from './routes.tsx'
+import { AuthProvider } from '../features/auth/AuthContext.tsx'
+
+function renderRoutes(initialEntries: string[]) {
+  return render(<AuthProvider><MemoryRouter initialEntries={initialEntries}><AppRoutes /></MemoryRouter></AuthProvider>)
+}
 
 vi.mock('../features/catalogue/api.ts', () => ({
   getProducts: vi.fn().mockResolvedValue({
@@ -12,7 +17,7 @@ vi.mock('../features/catalogue/api.ts', () => ({
 
 describe('application routes', () => {
   it('renders the home page at the root route', () => {
-    render(<MemoryRouter initialEntries={['/']}><AppRoutes /></MemoryRouter>)
+    renderRoutes(['/'])
     expect(within(screen.getByRole('banner')).getByRole('img', { name: 'Build & Bloom by Colorful Life' })).toBeInTheDocument()
     expect(screen.getByRole('main')).toContainElement(
       screen.getByRole('heading', { name: 'Home page' }),
@@ -21,7 +26,7 @@ describe('application routes', () => {
   })
 
   it('renders the not found page for an unknown route', () => {
-    render(<MemoryRouter initialEntries={['/unknown']}><AppRoutes /></MemoryRouter>)
+    renderRoutes(['/unknown'])
     expect(screen.getByRole('banner')).toBeInTheDocument()
     expect(screen.getByRole('main')).toContainElement(
       screen.getByRole('heading', { name: 'Page not found' }),
@@ -30,7 +35,7 @@ describe('application routes', () => {
   })
 
   it('renders the catalogue page inside the application shell', async () => {
-    render(<MemoryRouter initialEntries={['/catalogue']}><AppRoutes /></MemoryRouter>)
+    renderRoutes(['/catalogue'])
 
     expect(screen.getByRole('banner')).toBeInTheDocument()
     expect(screen.getByRole('main')).toContainElement(
